@@ -2,8 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using UltraPlayBettingData.Data;
 
-
-
 namespace UltraPlayBettingData.Controllers
 {
 

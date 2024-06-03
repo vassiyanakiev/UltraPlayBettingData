@@ -17,8 +17,17 @@ namespace UltraPlayBettingData
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<BettingContext>(options =>
-            options.UseSqlServer(Configuration.GetConnectionString("BettingDatabase"))
-                    .ConfigureWarnings(warnings => warnings.Throw(RelationalEventId.MultipleCollectionIncludeWarning)));
+            {
+                var connectionString = Configuration.GetConnectionString("BettingDatabase");
+                options.UseSqlServer(connectionString, sqlOptions =>
+                {
+                    sqlOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
+                })
+                .ConfigureWarnings(warnings => warnings.Throw(RelationalEventId.MultipleCollectionIncludeWarning))
+                .EnableSensitiveDataLogging()
+                .EnableDetailedErrors()
+                .LogTo(Console.WriteLine, LogLevel.Information);
+            });
 
             services.AddControllers();
             services.AddSingleton<SportsFeedProcessor>();
