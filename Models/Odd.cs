@@ -1,12 +1,15 @@
-﻿namespace UltraPlayBettingData.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace UltraPlayBettingData.Models
 {
     public class Odd
     {
-        public int OddId { get; set; }
-        public int BetId { get; set; }
+        [Key]
+        public int ID { get; set; }
         public string Name { get; set; }
         public decimal Value { get; set; }
-        public string SpecialBetValue { get; set; }
+        public decimal SpecialBetValue { get; set; }
+        public int BetID { get; set; }
         public Bet Bet { get; set; }
     }
 }

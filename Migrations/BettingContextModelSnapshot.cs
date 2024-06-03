@@ -24,60 +24,66 @@ namespace UltraPlayBettingData.Migrations
 
             modelBuilder.Entity("UltraPlayBettingData.Models.Bet", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"), 1L, 1);
 
-                    b.Property<bool>("IsActive")
+                    b.Property<bool>("IsLive")
                         .HasColumnType("bit");
 
-                    b.Property<int>("MatchId")
+                    b.Property<int>("MatchID")
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
+                    b.HasKey("ID");
 
-                    b.HasIndex("MatchId");
+                    b.HasIndex("MatchID");
 
                     b.ToTable("Bets");
                 });
 
             modelBuilder.Entity("UltraPlayBettingData.Models.Event", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"), 1L, 1);
+
+                    b.Property<int>("CategoryID")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsLive")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("SportId")
+                    b.Property<int>("SportID")
                         .HasColumnType("int");
 
-                    b.HasKey("Id");
+                    b.HasKey("ID");
 
-                    b.HasIndex("SportId");
+                    b.HasIndex("SportID");
 
                     b.ToTable("Events");
                 });
 
             modelBuilder.Entity("UltraPlayBettingData.Models.Match", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"), 1L, 1);
 
-                    b.Property<int>("EventId")
+                    b.Property<int>("EventID")
                         .HasColumnType("int");
 
                     b.Property<string>("MatchType")
@@ -91,63 +97,78 @@ namespace UltraPlayBettingData.Migrations
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
 
-                    b.HasKey("Id");
+                    b.HasKey("ID");
 
-                    b.HasIndex("EventId");
+                    b.HasIndex("EventID");
 
                     b.ToTable("Matches");
                 });
 
             modelBuilder.Entity("UltraPlayBettingData.Models.Odd", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"), 1L, 1);
 
-                    b.Property<int>("BetId")
+                    b.Property<int>("BetID")
                         .HasColumnType("int");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<float?>("SpecialBetValue")
-                        .HasColumnType("real");
+                    b.Property<decimal>("SpecialBetValue")
+                        .HasColumnType("decimal(18,2)");
 
-                    b.Property<float>("Value")
-                        .HasColumnType("real");
+                    b.Property<decimal>("Value")
+                        .HasColumnType("decimal(18,2)");
 
-                    b.HasKey("Id");
+                    b.HasKey("ID");
 
-                    b.HasIndex("BetId");
+                    b.HasIndex("BetID");
 
                     b.ToTable("Odds");
                 });
 
             modelBuilder.Entity("UltraPlayBettingData.Models.Sport", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"), 1L, 1);
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
+                    b.HasKey("ID");
 
                     b.ToTable("Sports");
+                });
+
+            modelBuilder.Entity("UltraPlayBettingData.Models.XmlSports", b =>
+                {
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("SportID")
+                        .HasColumnType("int");
+
+                    b.HasKey("CreateDate");
+
+                    b.HasIndex("SportID");
+
+                    b.ToTable("XmlSports");
                 });
 
             modelBuilder.Entity("UltraPlayBettingData.Models.Bet", b =>
                 {
                     b.HasOne("UltraPlayBettingData.Models.Match", "Match")
                         .WithMany("Bets")
-                        .HasForeignKey("MatchId")
+                        .HasForeignKey("MatchID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -158,7 +179,7 @@ namespace UltraPlayBettingData.Migrations
                 {
                     b.HasOne("UltraPlayBettingData.Models.Sport", "Sport")
                         .WithMany("Events")
-                        .HasForeignKey("SportId")
+                        .HasForeignKey("SportID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -169,7 +190,7 @@ namespace UltraPlayBettingData.Migrations
                 {
                     b.HasOne("UltraPlayBettingData.Models.Event", "Event")
                         .WithMany("Matches")
-                        .HasForeignKey("EventId")
+                        .HasForeignKey("EventID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -180,11 +201,22 @@ namespace UltraPlayBettingData.Migrations
                 {
                     b.HasOne("UltraPlayBettingData.Models.Bet", "Bet")
                         .WithMany("Odds")
-                        .HasForeignKey("BetId")
+                        .HasForeignKey("BetID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Bet");
+                });
+
+            modelBuilder.Entity("UltraPlayBettingData.Models.XmlSports", b =>
+                {
+                    b.HasOne("UltraPlayBettingData.Models.Sport", "Sport")
+                        .WithMany()
+                        .HasForeignKey("SportID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Sport");
                 });
 
             modelBuilder.Entity("UltraPlayBettingData.Models.Bet", b =>

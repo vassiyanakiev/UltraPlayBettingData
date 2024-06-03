@@ -13,32 +13,52 @@ namespace UltraPlayBettingData.Migrations
                 name: "Sports",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
+                    ID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Sports", x => x.Id);
+                    table.PrimaryKey("PK_Sports", x => x.ID);
                 });
 
             migrationBuilder.CreateTable(
                 name: "Events",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
+                    ID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    SportId = table.Column<int>(type: "int", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IsLive = table.Column<bool>(type: "bit", nullable: false),
+                    CategoryID = table.Column<int>(type: "int", nullable: false),
+                    SportID = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Events", x => x.Id);
+                    table.PrimaryKey("PK_Events", x => x.ID);
                     table.ForeignKey(
-                        name: "FK_Events_Sports_SportId",
-                        column: x => x.SportId,
+                        name: "FK_Events_Sports_SportID",
+                        column: x => x.SportID,
                         principalTable: "Sports",
-                        principalColumn: "Id",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "XmlSports",
+                columns: table => new
+                {
+                    CreateDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    SportID = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_XmlSports", x => x.CreateDate);
+                    table.ForeignKey(
+                        name: "FK_XmlSports_Sports_SportID",
+                        column: x => x.SportID,
+                        principalTable: "Sports",
+                        principalColumn: "ID",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -46,21 +66,21 @@ namespace UltraPlayBettingData.Migrations
                 name: "Matches",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
+                    ID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    EventId = table.Column<int>(type: "int", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    MatchType = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    MatchType = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    EventID = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Matches", x => x.Id);
+                    table.PrimaryKey("PK_Matches", x => x.ID);
                     table.ForeignKey(
-                        name: "FK_Matches_Events_EventId",
-                        column: x => x.EventId,
+                        name: "FK_Matches_Events_EventID",
+                        column: x => x.EventID,
                         principalTable: "Events",
-                        principalColumn: "Id",
+                        principalColumn: "ID",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -68,20 +88,20 @@ namespace UltraPlayBettingData.Migrations
                 name: "Bets",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
+                    ID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    MatchId = table.Column<int>(type: "int", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false)
+                    IsLive = table.Column<bool>(type: "bit", nullable: false),
+                    MatchID = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Bets", x => x.Id);
+                    table.PrimaryKey("PK_Bets", x => x.ID);
                     table.ForeignKey(
-                        name: "FK_Bets_Matches_MatchId",
-                        column: x => x.MatchId,
+                        name: "FK_Bets_Matches_MatchID",
+                        column: x => x.MatchID,
                         principalTable: "Matches",
-                        principalColumn: "Id",
+                        principalColumn: "ID",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -89,49 +109,57 @@ namespace UltraPlayBettingData.Migrations
                 name: "Odds",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
+                    ID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    BetId = table.Column<int>(type: "int", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Value = table.Column<float>(type: "real", nullable: false),
-                    SpecialBetValue = table.Column<float>(type: "real", nullable: true)
+                    Value = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    SpecialBetValue = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    BetID = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Odds", x => x.Id);
+                    table.PrimaryKey("PK_Odds", x => x.ID);
                     table.ForeignKey(
-                        name: "FK_Odds_Bets_BetId",
-                        column: x => x.BetId,
+                        name: "FK_Odds_Bets_BetID",
+                        column: x => x.BetID,
                         principalTable: "Bets",
-                        principalColumn: "Id",
+                        principalColumn: "ID",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Bets_MatchId",
+                name: "IX_Bets_MatchID",
                 table: "Bets",
-                column: "MatchId");
+                column: "MatchID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Events_SportId",
+                name: "IX_Events_SportID",
                 table: "Events",
-                column: "SportId");
+                column: "SportID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Matches_EventId",
+                name: "IX_Matches_EventID",
                 table: "Matches",
-                column: "EventId");
+                column: "EventID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Odds_BetId",
+                name: "IX_Odds_BetID",
                 table: "Odds",
-                column: "BetId");
+                column: "BetID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_XmlSports_SportID",
+                table: "XmlSports",
+                column: "SportID");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
                 name: "Odds");
+
+            migrationBuilder.DropTable(
+                name: "XmlSports");
 
             migrationBuilder.DropTable(
                 name: "Bets");

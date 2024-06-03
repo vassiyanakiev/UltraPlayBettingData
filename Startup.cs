@@ -15,14 +15,13 @@ namespace UltraPlayBettingData
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
-            services.AddHttpClient();
-            services.AddHostedService<XmlFeedService>();
-
             services.AddDbContext<BettingContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("BettingDatabase")));
+            options.UseSqlServer(Configuration.GetConnectionString("BettingDatabase")));
 
-            
+            services.AddControllers();
+            services.AddSingleton<SportsFeedProcessor>();
+            services.AddHostedService<FeedBackgroundService>();
+            services.AddSingleton<UpdateService>();
 
         }
 
@@ -40,5 +39,6 @@ namespace UltraPlayBettingData
                 endpoints.MapControllers();
             });
         }
+
     }
 }

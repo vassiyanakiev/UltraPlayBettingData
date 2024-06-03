@@ -1,9 +1,12 @@
-﻿namespace UltraPlayBettingData.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace UltraPlayBettingData.Models
 {
     public class Sport
     {
-        public int SportId { get; set; }
+        [Key]
+        public int ID { get; set; }
         public string Name { get; set; }
-        public ICollection<Event> Events { get; set; }
+        public List<Event> Events { get; set; }
     }
 }

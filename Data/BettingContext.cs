@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Design;
 using UltraPlayBettingData.Models;
 
 namespace UltraPlayBettingData.Data
@@ -15,26 +16,49 @@ namespace UltraPlayBettingData.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Configure relationships and constraints if needed
+            modelBuilder.Entity<XmlSports>()
+           .HasKey(x => x.CreateDate);
+
             modelBuilder.Entity<Sport>()
                 .HasMany(s => s.Events)
                 .WithOne(e => e.Sport)
-                .HasForeignKey(e => e.SportId);
+                .HasForeignKey(e => e.SportID);
 
             modelBuilder.Entity<Event>()
                 .HasMany(e => e.Matches)
                 .WithOne(m => m.Event)
-                .HasForeignKey(m => m.EventId);
+                .HasForeignKey(m => m.EventID);
 
             modelBuilder.Entity<Match>()
                 .HasMany(m => m.Bets)
                 .WithOne(b => b.Match)
-                .HasForeignKey(b => b.MatchId);
+                .HasForeignKey(b => b.MatchID);
 
             modelBuilder.Entity<Bet>()
                 .HasMany(b => b.Odds)
                 .WithOne(o => o.Bet)
-                .HasForeignKey(o => o.BetId);
+                .HasForeignKey(o => o.BetID);
+
+            // Specify precision for decimal properties
+            modelBuilder.Entity<Odd>()
+                .Property(o => o.Value)
+                .HasColumnType("decimal(18,2)"); 
+
+            modelBuilder.Entity<Odd>()
+                .Property(o => o.SpecialBetValue)
+                .HasColumnType("decimal(18,2)"); 
+
+        }
+    }
+
+    public class BettingContextFactory : IDesignTimeDbContextFactory<BettingContext>
+    {
+        public BettingContext CreateDbContext(string[] args)
+        {
+            var optionsBuilder = new DbContextOptionsBuilder<BettingContext>();
+            optionsBuilder.UseSqlServer("BettingDatabase");
+
+            return new BettingContext(optionsBuilder.Options);
         }
     }
 
