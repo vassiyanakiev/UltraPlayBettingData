@@ -55,10 +55,17 @@ namespace UltraPlayBettingData.Data
     {
         public BettingContext CreateDbContext(string[] args)
         {
-            var optionsBuilder = new DbContextOptionsBuilder<BettingContext>();
-            optionsBuilder.UseSqlServer("BettingDatabase");
+            IConfigurationRoot configuration = new ConfigurationBuilder()
+           .SetBasePath(Directory.GetCurrentDirectory())
+           .AddJsonFile("appsettings.json")
+           .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json", optional: true)
+           .Build();
 
-            return new BettingContext(optionsBuilder.Options);
+            var builder = new DbContextOptionsBuilder<BettingContext>();
+            var connectionString = configuration.GetConnectionString("BettingDatabase");
+            builder.UseSqlServer(connectionString);
+
+            return new BettingContext(builder.Options);
         }
     }
 
