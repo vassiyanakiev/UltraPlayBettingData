@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using UltraPlayBettingData.Data;
-using UltraPlayBettingData.DTO_s;
+
 
 
 namespace UltraPlayBettingData.Controllers

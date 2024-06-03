@@ -1,4 +1,5 @@
-﻿using System.Xml.Serialization;
+﻿using Microsoft.EntityFrameworkCore;
+using System.Xml.Serialization;
 using UltraPlayBettingData.Data;
 using UltraPlayBettingData.Models;
 
@@ -28,33 +29,145 @@ namespace UltraPlayBettingData.Services
                 {
                     var context = scope.ServiceProvider.GetRequiredService<BettingContext>();
 
-                    // Save to database
-                    context.Add(xmlSports);
-                    await context.SaveChangesAsync();
+                    // Upsert Sport
+                    var existingSport = await context.Sports.AsNoTracking()
+                        .FirstOrDefaultAsync(s => s.ID == xmlSports.Sport.ID);
 
-                    // Add update messages
-                    updateServiceValue.AddUpdateMessage(nameof(Sport), "Add", xmlSports.Sport);
-                    foreach (var @event in xmlSports.Sport.Events)
+                    if (existingSport != null)
                     {
-                        updateServiceValue.AddUpdateMessage(nameof(Event), "Add", @event);
-                        foreach (var match in @event.Matches)
-                        {
-                            updateServiceValue.AddUpdateMessage(nameof(Match), "Add", match);
-                            foreach (var bet in match.Bets)
-                            {
-                                updateServiceValue.AddUpdateMessage(nameof(Bet), "Add", bet);
-                                foreach (var odd in bet.Odds)
-                                {
-                                    updateServiceValue.AddUpdateMessage(nameof(Odd), "Add", odd);
-                                }
-                            }
-                        }
+                        UpdateSport(existingSport, xmlSports.Sport, context);
                     }
+                    else
+                    {
+                        context.Sports.Add(xmlSports.Sport);
+                    }
+
+                    await context.SaveChangesAsync();
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"An error occurred: {ex.Message}");
+            }
+        }
+
+        private void UpdateSport(Sport existingSport, Sport newSport, BettingContext context)
+        {
+            context.Entry(existingSport).CurrentValues.SetValues(newSport);
+
+            foreach (var newEvent in newSport.Events)
+            {
+                var existingEvent = context.Events.AsNoTracking()
+                    .FirstOrDefault(e => e.ID == newEvent.ID);
+
+                if (existingEvent != null)
+                {
+                    UpdateEvent(existingEvent, newEvent, context);
+                }
+                else
+                {
+                    context.Events.Add(newEvent);
+                }
+            }
+
+            // Remove deleted events
+            var existingEvents = context.Events.Where(e => e.SportID == newSport.ID).ToList();
+            foreach (var existingEvent in existingEvents)
+            {
+                if (!newSport.Events.Any(e => e.ID == existingEvent.ID))
+                {
+                    context.Events.Remove(existingEvent);
+                }
+            }
+        }
+
+        private void UpdateEvent(Event existingEvent, Event newEvent, BettingContext context)
+        {
+            context.Entry(existingEvent).CurrentValues.SetValues(newEvent);
+
+            foreach (var newMatch in newEvent.Matches)
+            {
+                var existingMatch = context.Matches.AsNoTracking()
+                    .FirstOrDefault(m => m.ID == newMatch.ID);
+
+                if (existingMatch != null)
+                {
+                    UpdateMatch(existingMatch, newMatch, context);
+                }
+                else
+                {
+                    context.Matches.Add(newMatch);
+                }
+            }
+
+            // Remove deleted matches
+            var existingMatches = context.Matches.Where(m => m.EventID == newEvent.ID).ToList();
+            foreach (var existingMatch in existingMatches)
+            {
+                if (!newEvent.Matches.Any(m => m.ID == existingMatch.ID))
+                {
+                    context.Matches.Remove(existingMatch);
+                }
+            }
+        }
+
+        private void UpdateMatch(Match existingMatch, Match newMatch, BettingContext context)
+        {
+            context.Entry(existingMatch).CurrentValues.SetValues(newMatch);
+
+            foreach (var newBet in newMatch.Bets)
+            {
+                var existingBet = context.Bets.AsNoTracking()
+                    .FirstOrDefault(b => b.ID == newBet.ID);
+
+                if (existingBet != null)
+                {
+                    UpdateBet(existingBet, newBet, context);
+                }
+                else
+                {
+                    context.Bets.Add(newBet);
+                }
+            }
+
+            // Remove deleted bets
+            var existingBets = context.Bets.Where(b => b.MatchID == newMatch.ID).ToList();
+            foreach (var existingBet in existingBets)
+            {
+                if (!newMatch.Bets.Any(b => b.ID == existingBet.ID))
+                {
+                    context.Bets.Remove(existingBet);
+                }
+            }
+        }
+
+        private void UpdateBet(Bet existingBet, Bet newBet, BettingContext context)
+        {
+            context.Entry(existingBet).CurrentValues.SetValues(newBet);
+
+            foreach (var newOdd in newBet.Odds)
+            {
+                var existingOdd = context.Odds.AsNoTracking()
+                    .FirstOrDefault(o => o.ID == newOdd.ID);
+
+                if (existingOdd != null)
+                {
+                    context.Entry(existingOdd).CurrentValues.SetValues(newOdd);
+                }
+                else
+                {
+                    context.Odds.Add(newOdd);
+                }
+            }
+
+            // Remove deleted odds
+            var existingOdds = context.Odds.Where(o => o.BetID == newBet.ID).ToList();
+            foreach (var existingOdd in existingOdds)
+            {
+                if (!newBet.Odds.Any(o => o.ID == existingOdd.ID))
+                {
+                    context.Odds.Remove(existingOdd);
+                }
             }
         }
 
