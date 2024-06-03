@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using UltraPlayBettingData.Data;
+using UltraPlayBettingData.Services;
 
 namespace UltraPlayBettingData
 {
@@ -15,11 +16,14 @@ namespace UltraPlayBettingData
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+            services.AddHttpClient();
+            services.AddHostedService<XmlFeedService>();
 
             services.AddDbContext<BettingContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("BettingDatabase")));
 
-            // Register other services
+            
+
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

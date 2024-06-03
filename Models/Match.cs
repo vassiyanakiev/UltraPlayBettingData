@@ -2,7 +2,7 @@
 {
     public class Match
     {
-        public int Id { get; set; }
+        public int MatchId { get; set; }
         public int EventId { get; set; }
         public string Name { get; set; }
         public DateTime StartDate { get; set; }

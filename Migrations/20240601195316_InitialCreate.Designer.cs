@@ -12,7 +12,7 @@ using UltraPlayBettingData.Data;
 namespace UltraPlayBettingData.Migrations
 {
     [DbContext(typeof(BettingContext))]
-    [Migration("20240531122629_InitialCreate")]
+    [Migration("20240601195316_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
